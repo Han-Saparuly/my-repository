@@ -184,13 +184,6 @@ PS.touch = function( x, y, data, options ) {
 	
 };
 
- PS.exit = function( x, y, data, toX, toY, options ) {
-    // Change the glyph color back to white when the cursor exits the bead
-    if (y === 0) {
-        PS.glyphColor(x, y, PS.COLOR_WHITE);
-    }
-};
-
  PS.release = function( x, y, data, options ) {
     // Ensure that the color is reset only for the glyphs in the first row
     if (y === 0) {
