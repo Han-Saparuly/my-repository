@@ -51,14 +51,12 @@ Any value returned is ignored.
 var shadowStatus = false;
 
 PS.init = function( system, options ) {
- PS.gridSize( 4, 1 ); // set up grid
- PS.statusText( "Try to make a simple beat!" );
- PS.borderColor( PS.ALL, PS.ALL, PS.COLOR_BLACK );
- PS.radius( PS.ALL, PS.ALL, 25 ); // Rounded rectangle
+    PS.gridSize( 4, 2 ); // Adjusted for two rows
+    PS.statusText( "Try to make a simple beat!" );
+    PS.borderColor( PS.ALL, PS.ALL, PS.COLOR_BLACK );
+    PS.radius( PS.ALL, PS.ALL, 25 ); // Rounded rectangle
 
- // Color top row of glyphs
-
- PS.glyphColor( PS.ALL, PS.ALL, PS.COLOR_WHITE );
+    PS.glyphColor( PS.ALL, PS.ALL, PS.COLOR_WHITE );
 
  // Add pause/stop symbols to bottom rows
 
@@ -101,6 +99,41 @@ PS.init = function( system, options ) {
  channel : ""
  }
  ];
+	
+ const NOTES_ROW2 = [
+        {
+ letter : "5",
+ filename : "perc_block_low",
+ color : 0x800080,
+ playing : false,
+ paused : false,
+ channel : ""
+ },
+ {
+ letter : "6",
+ filename : "perc_block_high",
+ color : 0x00FFFF,
+ playing : false,
+ paused : false,
+ channel : ""
+ },
+ {
+ letter : "7",
+ filename : "perc_hihat_closed",
+ color : PS.COLOR_BLUE,
+ playing : false,
+ paused : false,
+ channel : ""
+ },
+ {
+ letter : "8",
+ filename : "perc_conga_high",
+ color : 0xFFC0CB,
+ playing : false,
+ paused : false,
+ channel : ""
+ }
+    ];
 
  // Called when a note is loaded
  // Saves channel ID in associated data
@@ -142,6 +175,19 @@ PS.init = function( system, options ) {
 
  PS.data( x, 0, note );
  }
+	
+ for ( let x = 0; x < NOTES_ROW2.length; x += 1 ) {
+        let note = NOTES_ROW2[ x ];
+        PS.color( x, 1, note.color ); // Note the change in y-coordinate
+        PS.glyph( x, 1, note.letter );
+        PS.audioLoad( note.filename, {
+            data : note,
+            lock : true,
+            onLoad : loaded,
+            onEnd : ended
+        });
+        PS.data( x, 1, note ); // Note the change in y-coordinate
+    }
 };
 
 PS.touch = function( x, y, data, options ) {
@@ -160,7 +206,6 @@ PS.touch = function( x, y, data, options ) {
  if ( shadowStatus ) {
  shadowStatus = false;
  PS.gridShadow( false );
- PS.statusText( "Grid shadow disabled" );
  }
 
  // Otherwise show with random color
@@ -176,16 +221,27 @@ PS.touch = function( x, y, data, options ) {
  
  // Pressed play?
 
- if ( y === 0 ) {
- data.playing = true;
- data.paused = false;
- PS.audioPlay( data.filename );
- PS.glyphColor( x, y, PS.COLOR_GREEN );
- }
+ if (y === 0 || y === 1) {
+        data.playing = true;
+        data.paused = false;
+        PS.audioPlay( data.filename );
+        PS.glyphColor( x, y, PS.COLOR_GREEN );
+    }
+	
 };
 
-PS.release = function( x, y, data, options ) {
- PS.glyphColor( x, y, PS.COLOR_WHITE );
+ PS.exit = function( x, y, data, toX, toY, options ) {
+    // Change the glyph color back to white when the cursor exits the bead
+    if (y === 0 || y === 1) {
+        PS.glyphColor(x, y, PS.COLOR_WHITE);
+    }
+};
+
+ PS.release = function( x, y, data, options ) {
+    // Ensure that the color is reset only for the glyphs in the first row
+    if (y === 0 || y === 1) {
+        PS.glyphColor(x, y, PS.COLOR_WHITE);
+    }
 };
 
 
