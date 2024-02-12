@@ -68,7 +68,7 @@ const colorToRGB = {
 PS.init = function(system, options) {
     PS.gridSize(4, 4); // Set grid size to 4x4
     PS.gridColor(PS.COLOR_GRAY); // Set background color
-    PS.statusText("Match the pattern"); // Correct method name
+    PS.statusText("Match the pattern (hint: use headphones)"); // Correct method name
     PS.border(PS.ALL, PS.ALL, 2); // Correct method name
 
     // Initialize grid with random colors
@@ -80,14 +80,21 @@ PS.init = function(system, options) {
 };
 
 PS.touch = function(x, y, data, options) {
-    "use strict";
+    "use strict"; // Use strict mode for better error checking
 
-    let currentColor = PS.color(x, y); // Correct method name
-    let nextColor = getNextColor(currentColor);
-    PS.color(x, y, nextColor); // Correct method name
+    let currentColor = PS.color(x, y); // Get the current color of the bead
+    let nextColor = getNextColor(currentColor); // Determine the next color
+    PS.color(x, y, nextColor); // Set the bead to the next color
 
+    // Check if the newly placed color matches the target pattern
+    if (nextColor === targetPattern[x][y]) {
+        PS.audioPlay("fx_coin1"); // Play sound for correct color placement
+    }
+
+    // Check if the entire pattern matches after each touch
     if (checkPatternMatch()) {
-        PS.statusText("Puzzle Solved!"); // Correct method name
+        PS.statusText("Puzzle Solved!"); // Update status text
+        PS.audioPlay("fx_tada"); // Play victory sound
     }
 };
 
